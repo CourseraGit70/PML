@@ -1,0 +1,37 @@
+---
+title: "Machine Learning Write Up"
+author: "Greg Tyler"
+date: "08/22/2014"
+output: html_document
+---
+
+##How I built my model
+After reading in the test.csv and training.csv I removed all the columns filled with NA or blank. I then removed the first 7 columns as they were not useful as predictors. I then used randomForest() from the randomForest library, with "classe" as the predictor, against all remaining variables.
+
+##Cross validation
+Cross validation is intrinsically built into the randomForest()) function. http://www.stat.berkeley.edu/~breiman/RandomForests/cc_home.htm#ooberr has a tremendous amount of detail on the cross validation performed. Because of the amount of cross validation intrinsic to the method I did not perform any additional cross validation.
+
+##Out of Sample Error Rate
+After running the model the OOB estimate of  error rate is 0.29%. This is an unbiased estimate of the out of sample error rate. It was also low enough that I proceeded with the first model and was able to accurately predict 20/20 on the test set.
+
+My code is below
+
+```{r cache=TRUE}
+library("randomForest")
+
+train <- read.csv("pml-training.csv", na.strings=c("NA", ""))
+test <- read.csv("pml-testing.csv", na.strings=c("NA", ""))
+
+train <- train[, colSums(is.na(train)) == 0]
+train <- train[,8:60]
+
+test <- test[, colSums(is.na(test)) == 0]
+test <- test[,8:60]
+
+model <- randomForest(classe~., data=train)
+answers <- as.character(predict(model, newdata=test))
+
+
+model
+answers
+```
